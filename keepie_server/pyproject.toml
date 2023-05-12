@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "keepie-server"
+version = "0.1.0"
+description = ""
+authors = ["RonShmaya <ronshmaya6@gmail.com>"]
+readme = "README.md"
+packages = [{include = "keepie_server"}]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.9.7 || >3.9.7,<4.0"
+uvicorn = "^0.20.0"
+fastapi = "^0.92.0"
+pymongo = "^4.3.3"
+
+
+[tool.poetry.scripts]
+server = 'keepie_server.app_layer.configure_server:main'
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
