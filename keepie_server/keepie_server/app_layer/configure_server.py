@@ -75,7 +75,7 @@ class ServerConfiguration:
         return self.__server_th.is_alive()
 
 def main():
-    ServerConfiguration(port=8080).activate_server()
+    ServerConfiguration(port=8085).activate_server()
 
 if __name__ == "__main__":
     main()

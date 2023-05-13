@@ -1,5 +1,7 @@
 import pymongo
 from abc import ABC, abstractmethod
+from fastapi import HTTPException
+from http import HTTPStatus
 from keepie_server.keepie_server.my_tools.my_jsons_api import User, ChangeAbleUser, TrackingReq
 from typing import Tuple, Dict, List
 from pydantic import BaseModel
@@ -22,10 +24,13 @@ class ActDec():
 
         def wrapper(*args, **kw):
             try:
-                return True, func(*args, **kw)
+                return 200, func(*args, **kw)
+            except HTTPException as exp:
+                print(str(exp))
+                return exp.status_code, str(exp)
             except Exception as exp:
                 print(str(exp))
-                return False, str(exp)
+                return HTTPStatus.BAD_REQUEST, str(exp)
 
         return wrapper
 
@@ -53,7 +58,7 @@ class RequestsDbHandler:
     def get_user(self, id: str) -> Tuple:
         result_dict = self.exec.get_by_id(Collections.USERS, id)
         if not result_dict:
-            raise Exception("User didn't Founded")
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="User didn't Founded")
         return User(name=result_dict["name"],
                     is_child=result_dict["is_child"],
                     phone=result_dict["phone"],

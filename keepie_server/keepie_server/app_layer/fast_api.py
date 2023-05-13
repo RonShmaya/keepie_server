@@ -24,8 +24,8 @@ def create_user(user:User=Body(..., title="User details")):
     # Create User
     """
     result, info = ApiHandler().insert_user(user)
-    if not result:
-        raise HTTPException(status_code=400, detail=info)
+    if result != 200:
+        raise HTTPException(status_code=result, detail=info)
 
     return {}
 
@@ -35,8 +35,8 @@ def update_user(user:ChangeAbleUser=Body(..., title="User new details")):
     # Update User
     """
     result, info = ApiHandler().update_user(user)
-    if not result:
-        raise HTTPException(status_code=400, detail=info)
+    if result != 200:
+        raise HTTPException(status_code=result, detail=info)
 
     return {}
 
@@ -47,10 +47,10 @@ def get_user(id=Path(...,title="user id (phone number)")):
     # Update User
     """
     result, info = ApiHandler().get_user(id)
-    if not result:
-        raise HTTPException(status_code=400, detail=info)
+    if result != 200:
+        raise HTTPException(status_code=result, detail=info)
 
-    return {}
+    return info
 
 
 @my_api.post("/tracking", status_code=200, tags=[USER_CONNECTION])
@@ -59,8 +59,8 @@ def create_tracking_request(track_req:TrackingReq=Body(..., title="Tracking Requ
     # Create Tracking Request
     """
     result, info = ApiHandler().insert_tracking(track_req)
-    if not result:
-        raise HTTPException(status_code=400, detail=info)
+    if result != 200:
+        raise HTTPException(status_code=result, detail=info)
 
     return {}
 
@@ -70,8 +70,8 @@ def update_tracking_request(track_req:TrackingReq=Body(..., title="Tracking Requ
     # Update Tracking Request
     """
     result, info = ApiHandler().update_tracking(track_req)
-    if not result:
-        raise HTTPException(status_code=400, detail=info)
+    if result != 200:
+        raise HTTPException(status_code=result, detail=info)
 
     return {}
 
@@ -81,8 +81,8 @@ def get_tracking_request(track_req:TrackingReq=Body(..., title="Tracking Request
     # Update Tracking Request
     """
     result, info = ApiHandler().update_tracking(track_req)
-    if not result:
-        raise HTTPException(status_code=400, detail=info)
+    if result != 200:
+        raise HTTPException(status_code=result, detail=info)
 
     return {}
 
