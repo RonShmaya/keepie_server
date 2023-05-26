@@ -85,6 +85,7 @@ def update_tracking_request(track_req:TrackingReq=Body(..., title="Tracking Requ
 
     return {}
 
+
 @my_api.get("/tracking/{id}/{is_child}", status_code=200, tags=[CONNECTIONS])
 def get_trackings_request(id:str = Path(...,title="user id (phone number)"),
                          is_child:bool = Path(...,title="type of user")):
@@ -97,6 +98,17 @@ def get_trackings_request(id:str = Path(...,title="user id (phone number)"),
 
     return info
 
+
+@my_api.delete("/tracking/{child_phone}/{adult_phone}", status_code=200, tags=[CONNECTIONS])
+def delete_trackings(child_phone:str = Path(...,title="child phone"),adult_phone:str = Path(...,title="child phone")):
+    """
+    # Delete Tracking Request
+    """
+    result, info = ApiHandler().delete_tracking(child_phone,adult_phone)
+    if result != 200:
+        raise HTTPException(status_code=result, detail=info)
+
+    return {}
 
 docs_file = my_api.openapi()
 docs_file["info"]["title"] = "Keepie"

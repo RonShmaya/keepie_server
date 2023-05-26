@@ -95,6 +95,10 @@ class RequestsDbHandler:
         track_lst = list(map(self.exec.remove_id_from_dct, track_lst))
         return list(map(lambda dct: TrackingReq(**dct), track_lst))
 
+    @ActDec()
+    def delete_trackings(self, child_phone,adult_phone):
+        self.exec.delete_by_query(Collections.TRACK,  {"_id": self.make_tracking_id(child_phone,adult_phone)})
+
     def make_tracking_id(self,phone1:str,phone2:str):
         return phone1+phone2 if phone1 < phone2 else phone2+phone1
 
@@ -160,6 +164,9 @@ class ExecutorMongoDB:
     def get_by_id(self, coll_type, id: str):
         myquery = {"_id": id}
         return self.collections_dict.get(coll_type).find_one(myquery)
+
+    def delete_by_query(self, coll_type, query):
+        return self.collections_dict.get(coll_type).delete_one(query)
 
     def remove_id_from_dct(self,item):
         item.pop("_id", None)
