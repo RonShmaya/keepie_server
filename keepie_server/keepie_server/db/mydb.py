@@ -1,4 +1,5 @@
 import pymongo
+from pymongo.errors import DuplicateKeyError
 from abc import ABC, abstractmethod
 from fastapi import HTTPException
 from http import HTTPStatus
@@ -25,10 +26,16 @@ class ActDec():
         def wrapper(*args, **kw):
             try:
                 return 200, func(*args, **kw)
-            except HTTPException as exp:
+            except DuplicateKeyError as exp:
+                print("DuplicateKeyError")
                 print(str(exp))
+                return HTTPStatus.FOUND, "Already Created..."
+            except HTTPException as exp:
+                print("HTTPException")
+                print(exp.status_code)
                 return exp.status_code, str(exp)
             except Exception as exp:
+                print(type(exp))
                 print(str(exp))
                 return HTTPStatus.BAD_REQUEST, str(exp)
 
@@ -50,12 +57,16 @@ class RequestsDbHandler:
         self.exec = ExecutorMongoDB()
 
     @ActDec()
-    def insert_user(self, user: User) -> Tuple:
+    def insert_user(self, user: User):
         self.exec.insert(Collections.USERS, user, user.phone)
+
+    @ActDec()
+    def update_user(self, user: User):
+        self.exec.update_by_id(Collections.USERS, user.phone, user)
 
 
     @ActDec()
-    def get_user(self, id: str) -> Tuple:
+    def get_user(self, id: str):
         result_dict = self.exec.get_by_id(Collections.USERS, id)
         if not result_dict:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="User didn't Founded")
@@ -66,12 +77,21 @@ class RequestsDbHandler:
                     )
 
     @ActDec()
-    def insert_tracking(self, track_req) -> Tuple:
-        self.exec.insert(Collections.TRACK, track_req, track_req.track_id)
+    def insert_tracking(self, track_req):
+        self.exec.insert(Collections.TRACK, track_req, self.make_tracking_id(track_req.phone_child,track_req.phone_adult))
 
     @ActDec()
-    def update_tracking(self, track_req: TrackingReq) -> Tuple:
-        self.exec.update_by_id(Collections.TRACK, track_req.track_id, track_req)
+    def update_tracking(self, track_req: TrackingReq):
+        self.exec.update_by_id(Collections.TRACK, self.make_tracking_id(track_req.phone_child,track_req.phone_adult), track_req)
+
+    @ActDec()
+    def get_trackings(self, id, is_child):
+        track_lst = list(self.exec.get_by_query( Collections.TRACK, {"phone_child": id} if is_child else {"phone_adult": id}))
+        track_lst = list(map(self.exec.remove_id_from_dct, track_lst))
+        return list(map(lambda dct: TrackingReq(**dct), track_lst))
+
+    def make_tracking_id(self,phone1:str,phone2:str):
+        return phone1+phone2 if phone1 < phone2 else phone2+phone1
 
     # @ActDec()
     # def get_tracking(self, id: str) -> Tuple:
@@ -127,11 +147,21 @@ class ExecutorMongoDB:
         myquery = {"_id": id}
         newvalues = {"$set": update_able_dct}
 
-        return self.collections_dict.get(coll_type).update_one(myquery, newvalues)
+        result = self.collections_dict.get(coll_type).update_one(myquery, newvalues)
+        if result.matched_count == 0:
+            raise HTTPException(HTTPStatus.NOT_FOUND,"NOT FOUND")
+        return result
 
     def get_by_id(self, coll_type, id: str):
         myquery = {"_id": id}
         return self.collections_dict.get(coll_type).find_one(myquery)
+
+    def remove_id_from_dct(self,item):
+        item.pop("_id", None)
+        return item
+
+    def get_by_query(self, coll_type, query):
+        return self.collections_dict.get(coll_type).find(query)
 
     def get_db_lists(self):
         return self.client.list_database_names()
@@ -157,5 +187,10 @@ if __name__ == "__main__":
     # user = User(name = "aaa", is_child=False, phone="5999")
     # col.insert_one(cl.parse_base_model_to_dict(user,user.phone))
 
-    RequestsDbHandler().update_user(ChangeAbleUser(phone="abcdsefg", name="name changed"))
-    # RequestsDbHandler().insert_user(User(name="lets go",phone="abcdsefg",is_child=True))
+    #RequestsDbHandler().update_user(ChangeAbleUser(phone="+97254441hh1120", name="name changedf"))
+    #RequestsDbHandler().insert_user(User(name="lets go",phone="+972542262095",is_child=True))
+    #RequestsDbHandler().get_user("+97254441112ff0")
+    #RequestsDbHandler().insert_tracking(TrackingReq(phone_child="phone1",phone_adult="+2",approved=True,denied=False))
+    print(RequestsDbHandler().get_trackings("phone1",True))
+
+

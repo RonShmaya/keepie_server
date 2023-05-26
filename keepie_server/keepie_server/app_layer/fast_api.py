@@ -7,10 +7,8 @@ import re
 
 
 USER_TAG = "USER_TAG"
-USER_CONNECTION = "USER_CONNECTION"
+CONNECTIONS = "CONNECTIONS"
 CHATS_TAG = "CHATS_TAG"
-
-#TODO: test if possible to send body with None
 
 class myApi(FastAPI):
     def __init__(self):
@@ -42,7 +40,7 @@ def update_user(user:ChangeAbleUser=Body(..., title="User new details")):
 
 
 @my_api.get("/user/{id}", status_code=200, tags=[USER_TAG])
-def get_user(id=Path(...,title="user id (phone number)")):
+def get_user(id:str =Path(...,title="user id (phone number)")):
     """
     # Update User
     """
@@ -53,7 +51,7 @@ def get_user(id=Path(...,title="user id (phone number)")):
     return info
 
 
-@my_api.post("/tracking", status_code=200, tags=[USER_CONNECTION])
+@my_api.post("/tracking", status_code=200, tags=[CONNECTIONS])
 def create_tracking_request(track_req:TrackingReq=Body(..., title="Tracking Request")):
     """
     # Create Tracking Request
@@ -64,7 +62,8 @@ def create_tracking_request(track_req:TrackingReq=Body(..., title="Tracking Requ
 
     return {}
 
-@my_api.put("/tracking", status_code=200, tags=[USER_CONNECTION])
+
+@my_api.put("/tracking", status_code=200, tags=[CONNECTIONS])
 def update_tracking_request(track_req:TrackingReq=Body(..., title="Tracking Request")):
     """
     # Update Tracking Request
@@ -75,16 +74,17 @@ def update_tracking_request(track_req:TrackingReq=Body(..., title="Tracking Requ
 
     return {}
 
-@my_api.get("/tracking", status_code=200, tags=[USER_CONNECTION])
-def get_tracking_request(track_req:TrackingReq=Body(..., title="Tracking Request")):
+@my_api.get("/trackings/{id}/{is_child}", status_code=200, tags=[CONNECTIONS])
+def get_trackings_request(id:str = Path(...,title="user id (phone number)"),
+                         is_child:bool = Path(...,title="type of user")):
     """
-    # Update Tracking Request
+    # Get All Tracking Connections
     """
-    result, info = ApiHandler().update_tracking(track_req)
+    result, info = ApiHandler().get_trackings(id, is_child)
     if result != 200:
         raise HTTPException(status_code=result, detail=info)
 
-    return {}
+    return info
 
 
 docs_file = my_api.openapi()

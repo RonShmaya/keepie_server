@@ -27,4 +27,9 @@ class ApiHandler:
     def insert_tracking(self, track_req):
         return RequestsDbHandler().insert_tracking(track_req)
 
+    def update_tracking(self, track_req):
+        return RequestsDbHandler().update_tracking(track_req)
+
+    def get_trackings(self, id, is_child):
+        return RequestsDbHandler().get_trackings(id, is_child)
 

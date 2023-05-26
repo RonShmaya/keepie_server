@@ -18,18 +18,11 @@ class ChangeAbleUser(BaseModel):
     phone: str
 
 
-class ConnectionsStatus(BaseModel):
-    connection_id: str
-    phone_child: str
-    phone_adult: str
-    is_connect: bool
-
-
 class TrackingReq(BaseModel):
-    track_id: str
     phone_child: str
     phone_adult: str
     approved: bool
     denied: bool
+
 
 
