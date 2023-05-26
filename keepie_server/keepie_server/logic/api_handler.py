@@ -1,4 +1,4 @@
-from keepie_server.keepie_server.my_tools.my_jsons_api import  User,ChangeAbleUser
+from keepie_server.keepie_server.my_tools.my_jsons_api import  User,ChangeAbleUser, UsersList
 from keepie_server.keepie_server.db.mydb import  RequestsDbHandler
 
 # EVERY api function return BOOL,INFO
@@ -23,6 +23,9 @@ class ApiHandler:
 
     def get_user(self, id:str):
         return RequestsDbHandler().get_user(id)
+
+    def get_users_lists(self, usersList: UsersList):
+        return RequestsDbHandler().get_users_lists(usersList)
 
     def insert_tracking(self, track_req):
         return RequestsDbHandler().insert_tracking(track_req)

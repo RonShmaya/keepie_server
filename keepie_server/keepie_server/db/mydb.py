@@ -3,7 +3,7 @@ from pymongo.errors import DuplicateKeyError
 from abc import ABC, abstractmethod
 from fastapi import HTTPException
 from http import HTTPStatus
-from keepie_server.keepie_server.my_tools.my_jsons_api import User, ChangeAbleUser, TrackingReq
+from keepie_server.keepie_server.my_tools.my_jsons_api import User, ChangeAbleUser, TrackingReq, UsersList
 from typing import Tuple, Dict, List
 from pydantic import BaseModel
 from enum import Enum
@@ -64,7 +64,6 @@ class RequestsDbHandler:
     def update_user(self, user: User):
         self.exec.update_by_id(Collections.USERS, user.phone, user)
 
-
     @ActDec()
     def get_user(self, id: str):
         result_dict = self.exec.get_by_id(Collections.USERS, id)
@@ -75,6 +74,12 @@ class RequestsDbHandler:
                     phone=result_dict["phone"],
                     image=result_dict.get("image", None)
                     )
+
+    @ActDec()
+    def get_users_lists(self, users_lst):
+        track_lst = list(self.exec.get_by_query( Collections.USERS, {"_id": {"$in": users_lst.phones}}))
+        track_lst = list(map(self.exec.remove_id_from_dct, track_lst))
+        return list(map(lambda dct: User(**dct), track_lst))
 
     @ActDec()
     def insert_tracking(self, track_req):
@@ -88,7 +93,7 @@ class RequestsDbHandler:
     def get_trackings(self, id, is_child):
         track_lst = list(self.exec.get_by_query( Collections.TRACK, {"phone_child": id} if is_child else {"phone_adult": id}))
         track_lst = list(map(self.exec.remove_id_from_dct, track_lst))
-        return list(map(lambda dct: TrackingReq(**dct), track_lst))
+        return list(map(lambda dct: TrackingReq(**dct), track_lst))    @ActDec()
 
     def make_tracking_id(self,phone1:str,phone2:str):
         return phone1+phone2 if phone1 < phone2 else phone2+phone1
@@ -191,6 +196,7 @@ if __name__ == "__main__":
     #RequestsDbHandler().insert_user(User(name="lets go",phone="+972542262095",is_child=True))
     #RequestsDbHandler().get_user("+97254441112ff0")
     #RequestsDbHandler().insert_tracking(TrackingReq(phone_child="phone1",phone_adult="+2",approved=True,denied=False))
-    print(RequestsDbHandler().get_trackings("phone1",True))
-
+    #print(RequestsDbHandler().get_trackings("phone1",True))
+    print(RequestsDbHandler().get_users_lists(UsersList(phones=["13245","+972542262095","+972544411120"])))
+    #print(UsersList(phones=["13245","+972542262095","+972544411120"]).phones)
 

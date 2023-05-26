@@ -3,7 +3,6 @@ from typing import Optional, Dict, List
 from enum import Enum
 
 
-
 class User(BaseModel):
     name: str
     is_child: bool
@@ -16,6 +15,10 @@ class ChangeAbleUser(BaseModel):
     is_child: Optional[bool] = None
     image: Optional[str] = None
     phone: str
+
+
+class UsersList(BaseModel):
+    phones: List[str]
 
 
 class TrackingReq(BaseModel):
