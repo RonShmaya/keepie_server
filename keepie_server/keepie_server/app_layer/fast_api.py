@@ -50,11 +50,12 @@ def get_user(id:str =Path(...,title="user id (phone number)")):
 
     return info
 
-@my_api.get("/user/list", status_code=200, tags=[USER_TAG])
+@my_api.put("/user/list", status_code=200, tags=[USER_TAG])
 def get_users_list(users_ids: UsersList = Body(..., title="Users Ids (phones)")):
     """
     # Get Users List
     """
+    print(f"ok {users_ids}")
     result, info = ApiHandler().get_users_lists(users_ids)
     if result != 200:
         raise HTTPException(status_code=result, detail=info)
@@ -90,7 +91,6 @@ def get_trackings_request(id:str = Path(...,title="user id (phone number)"),
     """
     # Get All Tracking Connections
     """
-    print(f"=================== {id}")
     result, info = ApiHandler().get_trackings(id, is_child)
     if result != 200:
         raise HTTPException(status_code=result, detail=info)

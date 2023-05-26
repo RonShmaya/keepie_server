@@ -93,7 +93,7 @@ class RequestsDbHandler:
     def get_trackings(self, id, is_child):
         track_lst = list(self.exec.get_by_query( Collections.TRACK, {"phone_child": id} if is_child else {"phone_adult": id}))
         track_lst = list(map(self.exec.remove_id_from_dct, track_lst))
-        return list(map(lambda dct: TrackingReq(**dct), track_lst))    @ActDec()
+        return list(map(lambda dct: TrackingReq(**dct), track_lst))
 
     def make_tracking_id(self,phone1:str,phone2:str):
         return phone1+phone2 if phone1 < phone2 else phone2+phone1
