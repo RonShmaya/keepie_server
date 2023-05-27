@@ -3,6 +3,8 @@ from fastapi.responses import HTMLResponse
 from typing import Optional
 from keepie_server.keepie_server.my_tools.my_jsons_api import User, ChangeAbleUser, TrackingReq, UsersList
 from keepie_server.keepie_server.logic.api_handler import ApiHandler
+from keepie_server.keepie_server.logic.app_db_connector import FirebaseConnector
+
 import re
 
 
@@ -44,6 +46,8 @@ def get_user(id:str =Path(...,title="user id (phone number)")):
     """
     # Get User
     """
+    print("aaaaaaa")
+    FirebaseConnector().start()
     result, info = ApiHandler().get_user(id)
     if result != 200:
         raise HTTPException(status_code=result, detail=info)
@@ -100,7 +104,7 @@ def get_trackings_request(id:str = Path(...,title="user id (phone number)"),
 
 
 @my_api.delete("/tracking/{child_phone}/{adult_phone}", status_code=200, tags=[CONNECTIONS])
-def delete_trackings(child_phone:str = Path(...,title="child phone"),adult_phone:str = Path(...,title="child phone")):
+def delete_tracking(child_phone:str = Path(...,title="child phone"),adult_phone:str = Path(...,title="child phone")):
     """
     # Delete Tracking Request
     """

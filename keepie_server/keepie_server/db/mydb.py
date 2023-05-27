@@ -96,7 +96,7 @@ class RequestsDbHandler:
         return list(map(lambda dct: TrackingReq(**dct), track_lst))
 
     @ActDec()
-    def delete_trackings(self, child_phone,adult_phone):
+    def delete_tracking(self, child_phone,adult_phone):
         self.exec.delete_by_query(Collections.TRACK,  {"_id": self.make_tracking_id(child_phone,adult_phone)})
 
     def make_tracking_id(self,phone1:str,phone2:str):

@@ -36,6 +36,6 @@ class ApiHandler:
     def get_trackings(self, id, is_child):
         return RequestsDbHandler().get_trackings(id, is_child)
 
-    def delete_trackings(self, child_phone,adult_phone):
-        return RequestsDbHandler().delete_trackings(child_phone,adult_phone)
+    def delete_tracking(self, child_phone,adult_phone):
+        return RequestsDbHandler().delete_tracking(child_phone,adult_phone)
 
