@@ -1,10 +1,15 @@
+import threading
+from datetime import datetime
 from fastapi import FastAPI, Path,Body,HTTPException
 from keepie_server.keepie_server.my_tools.my_jsons_api import User, ChangeAbleUser, TrackingReq, UsersList
 from keepie_server.keepie_server.logic.api_handler import ApiHandler
+from keepie_server.keepie_server.app_layer.data_processor import DataProcessor
+from keepie_server.keepie_server.db.app_firebase_connector import FirebaseConnector
 
 USER_TAG = "USER_TAG"
 CONNECTIONS = "CONNECTIONS"
 CHATS_TAG = "CHATS_TAG"
+ADMIN = "ADMIN"
 
 class myApi(FastAPI):
     def __init__(self):
@@ -105,6 +110,27 @@ def delete_tracking(child_phone:str = Path(...,title="child phone"),adult_phone:
     if result != 200:
         raise HTTPException(status_code=result, detail=info)
 
+    return {}
+
+@my_api.get("/admin/data", status_code=200, tags=[ADMIN])
+def exec_admin():
+    """
+    # ADMIN
+    """
+    threading.Thread(DataProcessor().decorate_runs_processing_in_the_loop , args=(DataProcessor().start_full_processing, 1800, True, 1)).start()
+    current_datetime = datetime.now()
+    formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    FirebaseConnector().exec_notification("Exec Processing",formatted_datetime,"test")
+    return {}
+
+@my_api.get("/admin/note", status_code=200, tags=[ADMIN])
+def exec_admin():
+    """
+    # ADMIN
+    """
+    current_datetime = datetime.now()
+    formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    FirebaseConnector().exec_notification("Alert Test",formatted_datetime,"test")
     return {}
 
 docs_file = my_api.openapi()

@@ -98,10 +98,13 @@ class DataProcessor:
         :param exec_times: -1 for always other is exec time to exec
         :return: None
         """
-        if is_exec_first:
-            processing_func()
 
         times_run = 0
+
+        if is_exec_first:
+            processing_func()
+            times_run+=1
+
         while exec_times < 0 or times_run < exec_times:
             time.sleep(exec_balance_time)
             times_run+=1
@@ -234,4 +237,5 @@ def print_all(childs_chats_dct):
             for msg in chat.messages:
                 print(msg)
 
-DataProcessor().start_full_processing()
+if __name__ == "__main__":
+    DataProcessor().start_full_processing()

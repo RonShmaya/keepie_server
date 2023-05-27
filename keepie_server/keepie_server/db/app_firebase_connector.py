@@ -41,6 +41,6 @@ class FirebaseConnector:
         response = messaging.send(message)
         print('Notification sent:', response)
 
-
-#FirebaseConnector().get_user_chats("+972502324023")
-FirebaseConnector().exec_notification("pythfghfghon msg", "whhfghat up man", "test")
+if __name__ == "__main__":
+    #FirebaseConnector().get_user_chats("+972502324023")
+    FirebaseConnector().exec_notification("nooofdfd", "please workf", "972544411120")
