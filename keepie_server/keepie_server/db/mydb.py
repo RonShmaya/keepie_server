@@ -77,9 +77,9 @@ class RequestsDbHandler:
 
     @ActDec()
     def get_users_lists(self, users_lst):
-        track_lst = list(self.exec.get_by_query( Collections.USERS, {"_id": {"$in": users_lst.phones}}))
-        track_lst = list(map(self.exec.remove_id_from_dct, track_lst))
-        return list(map(lambda dct: User(**dct), track_lst))
+        data_lst = list(self.exec.get_by_query( Collections.USERS, {"_id": {"$in": users_lst.phones}}))
+        data_lst = list(map(self.exec.remove_id_from_dct, data_lst))
+        return list(map(lambda dct: User(**dct), data_lst))
 
     @ActDec()
     def insert_tracking(self, track_req):
@@ -102,17 +102,14 @@ class RequestsDbHandler:
     def make_tracking_id(self,phone1:str,phone2:str):
         return phone1+phone2 if phone1 < phone2 else phone2+phone1
 
-    # @ActDec()
-    # def get_tracking(self, id: str) -> Tuple:
-    #     result_dict = self.exec.get_by_id(Collections.TRACK, id)
-    #     if not result_dict:
-    #         raise Exception("Tracking didn't Founded")
-    #     return User(name=result_dict["name"],
-    #                 is_child=result_dict["is_child"],
-    #                 phone=result_dict["phone"],
-    #                 image=result_dict.get("image", None)
-    #                 )
+    def get_all_child_and_track(self):
+        track_lst = list(self.exec.get_by_query(Collections.TRACK, {"approved": True, "denied": False}))
+        track_lst = list(map(self.exec.remove_id_from_dct, track_lst))
 
+        users_lst = list(self.exec.get_by_query(Collections.USERS, {"is_child": True}))
+        users_lst = list(map(self.exec.remove_id_from_dct, users_lst))
+
+        return list(map(lambda dct: User(**dct), users_lst)) , list(map(lambda dct: TrackingReq(**dct), track_lst))
 
 class ExecutorMongoDB:
     __instance = None
@@ -174,6 +171,9 @@ class ExecutorMongoDB:
 
     def get_by_query(self, coll_type, query):
         return self.collections_dict.get(coll_type).find(query)
+
+    def get_collection(self, coll_type):
+        return self.collections_dict.get(coll_type).find()
 
     def get_db_lists(self):
         return self.client.list_database_names()

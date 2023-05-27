@@ -1,6 +1,6 @@
 import uvicorn
 import threading
-from keepie_server.keepie_server.logic.app_db_connector import FirebaseConnector
+from keepie_server.keepie_server.db.app_firebase_connector import FirebaseConnector
 import socket
 
 
@@ -74,9 +74,14 @@ class ServerConfiguration:
     def is_server_active(self):
         return self.__server_th.is_alive()
 
+
+def run_server():
+    ServerConfiguration(port=8085).activate_server()
+
+
 def main():
     ServerConfiguration(port=8085).activate_server()
-    FirebaseConnector().start()
+
 
 if __name__ == "__main__":
     main()

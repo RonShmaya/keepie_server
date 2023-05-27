@@ -1,9 +1,7 @@
 import firebase_admin
-import time
-import threading
 from firebase_admin import credentials
 from firebase_admin import db
-from keepie_server.keepie_server.db.mydb import  RequestsDbHandler
+
 
 
 class FirebaseConnector:
@@ -22,13 +20,14 @@ class FirebaseConnector:
         firebase_admin.initialize_app(cred, {
             'databaseURL': 'https://keepie-cb5ec-default-rtdb.europe-west1.firebasedatabase.app/'
         })
-        # # Get a reference to the root node of the database
-        # root_ref = db.reference('/')
-        #
-        # # Read data from the database
-        # data = root_ref.get()
-        # print(data)
-    def start(self):
-        print(threading.current_thread().name)
+        self.root_accounts = db.reference('/').child("ACCOUNTS")
+        self.root_chats = db.reference('/').child("CHATS")
 
-FirebaseConnector()
+    def get_user_chats(self, user_phone):
+        return self.root_accounts.child(user_phone).child("chats").get()
+
+    def get_chat(self, chat_id):
+        return self.root_chats.child(chat_id).get()
+
+
+FirebaseConnector().get_user_chats("+972502324023")
