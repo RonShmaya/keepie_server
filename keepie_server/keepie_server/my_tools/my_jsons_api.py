@@ -27,5 +27,13 @@ class TrackingReq(BaseModel):
     approved: bool
     denied: bool
 
+class ChatStatus(BaseModel):
+    chat_id: str
+    child_phone: str
+    other_phone: str
+    grade: int
+    last_msg_test_milli: int
+    last_notification: int
+
 
 

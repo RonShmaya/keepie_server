@@ -3,7 +3,7 @@ from pymongo.errors import DuplicateKeyError
 from abc import ABC, abstractmethod
 from fastapi import HTTPException
 from http import HTTPStatus
-from keepie_server.keepie_server.my_tools.my_jsons_api import User, ChangeAbleUser, TrackingReq, UsersList
+from keepie_server.keepie_server.my_tools.my_jsons_api import User, ChangeAbleUser, TrackingReq, UsersList, ChatStatus
 from typing import Tuple, Dict, List
 from pydantic import BaseModel
 from enum import Enum
@@ -14,7 +14,7 @@ URI = "mongodb+srv://ronshmaya6:ronshmaya5@keepie.dx1wtej.mongodb.net/?retryWrit
 class Collections(Enum):
     USERS = 1
     TRACK = 2
-    CONNECTION = 3
+    CHATS = 3
 
 
 class ActDec():
@@ -111,6 +111,19 @@ class RequestsDbHandler:
 
         return list(map(lambda dct: User(**dct), users_lst)) , list(map(lambda dct: TrackingReq(**dct), track_lst))
 
+    def insert_chat(self, chat: ChatStatus):
+        self.exec.insert(Collections.CHATS, chat, chat.chat_id)
+
+    def update_chat(self, chat: ChatStatus):
+        self.exec.update_by_id(Collections.CHATS, chat.chat_id, chat)
+
+    def get_chat(self, id):
+        result = self.exec.get_by_id(Collections.CHATS, id)
+        if result is None:
+            return None
+        self.exec.remove_id_from_dct(result)
+        return ChatStatus(**result)
+
 class ExecutorMongoDB:
     __instance = None
 
@@ -128,14 +141,14 @@ class ExecutorMongoDB:
         self.db_name = "Keepie"
         self.coll_user_name = "user"
         self.coll_track_name = "track"
-        self.coll_connection_name = "connections"
+        self.coll_chat_status_name = "chats_status"
         self.users_coll = self.client[self.db_name][self.coll_user_name]
         self.track_coll = self.client[self.db_name][self.coll_track_name]
-        self.connection_coll = self.client[self.db_name][self.coll_connection_name]
+        self.chat_coll = self.client[self.db_name][self.coll_chat_status_name]
         self.collections_dict = {
             Collections.USERS: self.users_coll,
             Collections.TRACK: self.track_coll,
-            Collections.CONNECTION: self.connection_coll,
+            Collections.CHATS: self.chat_coll,
         }
 
     def parse_base_model_to_dict(self, model: BaseModel, id=None):
@@ -204,6 +217,13 @@ if __name__ == "__main__":
     #RequestsDbHandler().get_user("+97254441112ff0")
     #RequestsDbHandler().insert_tracking(TrackingReq(phone_child="phone1",phone_adult="+2",approved=True,denied=False))
     #print(RequestsDbHandler().get_trackings("phone1",True))
-    print(RequestsDbHandler().get_users_lists(UsersList(phones=["13245","+972542262095","+972544411120"])))
-    #print(UsersList(phones=["13245","+972542262095","+972544411120"]).phones)
+    #print(RequestsDbHandler().get_users_lists(UsersList(phones=["13245","+972542262095","+972544411120"])))
 
+    dct = {"chat_id": "+972544411120-+972542262095",
+        "child_phone": "353543453245",
+        "other_phone": "45244545",
+        "grade": 15,
+        "last_msg_test_milli": 1676580243515,
+        "last_notification": 5}
+    RequestsDbHandler().insert_chat(ChatStatus(**dct))
+    #print(UsersList(phones=["13245","+972542262095","+972544411120"]).phones)

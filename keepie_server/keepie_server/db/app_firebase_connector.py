@@ -1,5 +1,5 @@
 import firebase_admin
-from firebase_admin import credentials
+from firebase_admin import credentials, messaging
 from firebase_admin import db
 
 
@@ -29,5 +29,18 @@ class FirebaseConnector:
     def get_chat(self, chat_id):
         return self.root_chats.child(chat_id).get()
 
+    def exec_notification(self, title, body, topic):
+        message = messaging.Message(
+            notification=messaging.Notification(
+                title=title,
+                body=body
+            ),
+            topic=topic
+        )
+        # Send the message
+        response = messaging.send(message)
+        print('Notification sent:', response)
 
-FirebaseConnector().get_user_chats("+972502324023")
+
+#FirebaseConnector().get_user_chats("+972502324023")
+FirebaseConnector().exec_notification("pythfghfghon msg", "whhfghat up man", "test")
