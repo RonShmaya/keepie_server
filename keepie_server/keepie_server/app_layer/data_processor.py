@@ -261,7 +261,7 @@ class DataProcessor:
                     FirebaseConnector().exec_notification("Violante Chat",
                                                           f"{formatted_datetime} {chat_status.child_phone} get Violante messages from {chat_status.other_phone}",
                                                           chat_status.child_phone[1:len(chat_status.child_phone)])
-                #chat_status.last_msg_test_milli = chat.messages[0].time_milli
+                #chat_status.last_msg_test_milli = chat.messages[0].time_milli #TODO: will not check pre messages
                 RequestsDbHandler().update_chat(chat_status)
 
 def print_all(childs_chats_dct):
