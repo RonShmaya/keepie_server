@@ -1,9 +1,11 @@
 import time
 import threading
+import random
+from datetime import datetime
 from queue import Queue
 from keepie_server.keepie_server.db.mydb import RequestsDbHandler
 from keepie_server.keepie_server.db.app_firebase_connector import FirebaseConnector
-
+from keepie_server.keepie_server.my_tools.my_jsons_api import ChatStatus
 
 class DataChild:
     def __init__(self,name,phone):
@@ -39,6 +41,9 @@ class DataChat:
 
     def set_chat_status(self, chat_status):
         self.chat_status = chat_status
+
+    def get_chat_status(self):
+        return self.chat_status
 
     def parse_messages_dct_to_obj(self, messages_dct):
         return list(sorted(
@@ -148,7 +153,10 @@ class DataProcessor:
             if is_over:
                 return
             print_all(childs_chats_dct)
-            self.proc_queue_data.put(childs_chats_dct) #TODO: outfrom queue - sychronized too
+            self.proc_queue_data.put(childs_chats_dct)
+            self.__add_grades(childs_chats_dct)
+            self.__send_and_save(childs_chats_dct, 50)
+
         finally:
             self.full_proc_lock.release()
 
@@ -228,6 +236,33 @@ class DataProcessor:
         # remove chat without msgs & childs without chats
         return dict(filter(lambda child_chat: len(list(filter(lambda chat: len(chat.messages) != 0 ,child_chat[1]))) != 0 ,childs_chats_dct.items()))
 
+    def __add_grades(self, childs_chats_dct):
+        for child, chats in childs_chats_dct.items():
+            for chat in chats:
+                if chat.get_chat_status() is None:
+                    chat.set_chat_status(
+                        ChatStatus(chat_id=chat.chat_id,
+                                   child_phone= child.phone,
+                                   other_phone= chat.messages[0].receiver if chat.messages[0].sender == child.phone else chat.messages[0].sender,
+                                   grade = random.randint(0,15),
+                                   last_msg_test_milli = chat.messages[0].time_milli,
+                                   last_notification = time.time()))
+                    RequestsDbHandler().insert_chat(chat.get_chat_status())
+                else:
+                    chat.get_chat_status().grade = random.randint(0,100)
+
+    def __send_and_save(self, childs_chats_dct, max_grade):
+        for child, chats in childs_chats_dct.items():
+            for chat in chats:
+                chat_status = chat.get_chat_status()
+                if chat_status.grade > max_grade:
+                    current_datetime = datetime.now()
+                    formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+                    FirebaseConnector().exec_notification("Violante Chat",
+                                                          f"{formatted_datetime} {chat_status.child_phone} get Violante messages from {chat_status.other_phone}",
+                                                          chat_status.child_phone[1:len(chat_status.child_phone)])
+                #chat_status.last_msg_test_milli = chat.messages[0].time_milli
+                RequestsDbHandler().update_chat(chat_status)
 
 def print_all(childs_chats_dct):
     for child, chats in childs_chats_dct.items():
@@ -239,3 +274,9 @@ def print_all(childs_chats_dct):
 
 if __name__ == "__main__":
     DataProcessor().start_full_processing()
+    chat_id: str
+    child_phone: str
+    other_phone: str
+    grade: int
+    last_msg_test_milli: int
+    last_notification: int

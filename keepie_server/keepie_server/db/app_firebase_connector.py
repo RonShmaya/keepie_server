@@ -30,6 +30,7 @@ class FirebaseConnector:
         return self.root_chats.child(chat_id).get()
 
     def exec_notification(self, title, body, topic):
+        print(f"TITLE = {title}\n BODY = {body}\n TOPIC = {topic}")
         message = messaging.Message(
             notification=messaging.Notification(
                 title=title,
