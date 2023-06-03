@@ -120,7 +120,7 @@ def exec_admin():
     threading.Thread(DataProcessor().decorate_runs_processing_in_the_loop , args=(DataProcessor().start_full_processing, 1800, True, 1)).start()
     current_datetime = datetime.now()
     formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
-    FirebaseConnector().exec_notification("Exec Processing",formatted_datetime,"test")
+    FirebaseConnector().exec_notification("Exec Processing Test",formatted_datetime,"test")
     return {}
 
 @my_api.get("/admin/note", status_code=200, tags=[ADMIN])
@@ -130,7 +130,7 @@ def exec_admin():
     """
     current_datetime = datetime.now()
     formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
-    FirebaseConnector().exec_notification("Alert Test",formatted_datetime,"test")
+    FirebaseConnector().exec_notification("Test Violante Chat",f"{formatted_datetime} X get Violante messages from Y", "test")
     return {}
 
 docs_file = my_api.openapi()

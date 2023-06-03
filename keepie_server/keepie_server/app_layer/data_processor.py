@@ -148,7 +148,7 @@ class DataProcessor:
             if is_over:
                 return
             print_all(childs_chats_dct)
-            self.proc_queue_data.put(childs_chats_dct)
+            self.proc_queue_data.put(childs_chats_dct) #TODO: outfrom queue - sychronized too
         finally:
             self.full_proc_lock.release()
 

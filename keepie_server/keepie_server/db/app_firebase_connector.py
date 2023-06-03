@@ -43,4 +43,4 @@ class FirebaseConnector:
 
 if __name__ == "__main__":
     #FirebaseConnector().get_user_chats("+972502324023")
-    FirebaseConnector().exec_notification("nooofdfd", "please workf", "972544411120")
+    FirebaseConnector().exec_notification("Violante Chat", "972502324023 get Violante messages from 972542262095", "972502324023")
